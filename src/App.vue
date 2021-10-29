@@ -1,12 +1,15 @@
 <template>
-    <b-container>
-        <p>Hello, Bootstrap-Vue</p>
-        <router-view />
-    </b-container>
+    <router-view />
 </template>
 
+<script>
+export default {
+    name: 'app',
+};
+</script>
+
 <style lang="scss">
-@import "~@/assets/scss/vendors/bootstrap-vue/index";
+@import '~@/assets/scss/vendors/bootstrap-vue/index';
 #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
