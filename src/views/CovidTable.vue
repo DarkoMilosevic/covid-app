@@ -10,8 +10,6 @@
 			:items="getTableItems"
 			:fields="fields"
 			:filter="filterItems"
-			:per-page="perPage"
-			:current-page="currentPage"
 			@row-clicked="getRowData"
 			v-model="rowData"
 		>
@@ -39,8 +37,6 @@ export default {
     data() {
         return {
             search: null,
-            currentPage: 1,
-            perPage: 10,
 			rowData: [],
 			showSidebarContent: false,
 			countryDataSet: {},

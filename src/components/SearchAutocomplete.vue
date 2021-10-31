@@ -10,11 +10,7 @@
             v-show="isOpen"
             class="autocomplete-results"
         >
-            <b-list-group-item class="loading" v-if="isLoading"
-                >Loading results...</b-list-group-item
-            >
             <b-list-group-item
-                v-else
                 v-for="(result, i) in results"
                 :key="i"
                 @click="setResult(result)"
@@ -40,15 +36,13 @@ export default {
         return {
             isOpen: false,
             results: [],
-            search: '',
-            isLoading: false
+            search: ''
         };
     },
     watch: {
         items: function (value, oldValue) {
             if (value.length !== oldValue.length) {
                 this.results = value;
-                this.isLoading = false;
             }
         },
     },
@@ -77,12 +71,8 @@ export default {
         onChange() {
             this.$emit('input', this.search);
 
-            if (this.isAsync) {
-                this.isLoading = true;
-            } else {
-                this.filterResults();
-                this.isOpen = true;
-            }
+            this.filterResults();
+            this.isOpen = true;
         },
         handleClickOutside(event) {
             if (!this.$el.contains(event.target)) {
