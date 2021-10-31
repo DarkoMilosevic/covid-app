@@ -10,7 +10,6 @@ export default new Vuex.Store({
 	state: {
 		countries: [],
 		tableItems: [],
-		globalItems: null,
 		selectedItem: {}
 	},
 	mutations: {
@@ -18,8 +17,7 @@ export default new Vuex.Store({
 			state.countries = countries;
 		},
 		set_table_items(state, tableItems) {
-			state.tableItems = tableItems.Countries;
-			state.globalItems = tableItems.Global.TotalConfirmed;
+			state.tableItems = tableItems;
 		},
 		set_selected_item(state, selected) {
 			state.selectedItem = selected;
@@ -29,13 +27,23 @@ export default new Vuex.Store({
 		countriesGet({ commit }) {
 			axios.get('https://api.covid19api.com/countries')
 				.then(response => {
-					commit('set_countries', response.data)
+					commit('set_countries', response.data);
 			})
 		},
-		tableItemsGet({ commit }) {
-			axios.get('https://api.covid19api.com/summary')
+		tableItemsGet({ commit }, value) {
+			axios.get(`https://api.covid19api.com/total/dayone/country/${value.Slug}`)
 				.then(response => {
-					commit('set_table_items', response.data)
+					let covidStats = [];
+					let	countryStats = response.data.reduce((sum, item) => {
+							Object.keys(item).forEach(key => {
+								if (typeof item[key] === 'number') {
+									sum[key] = (sum[key] || 0) + item[key];
+								}
+							});
+							return {'Country': value.Country, ...sum};
+						}, {});
+					covidStats[0] = countryStats;
+					commit('set_table_items', covidStats);
 			})
 		}
 	},

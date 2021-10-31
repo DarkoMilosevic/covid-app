@@ -2,6 +2,7 @@
     <div class="autocomplete">
         <b-form-input
             type="text"
+            placeholder="Search..."
             @input="onChange"
             v-model="search"
         />
@@ -27,7 +28,7 @@
 
 <script>
 export default {
-    name: 'SearchAutocomplete',
+    name: 'search-autocomplete',
     props: {
         items: {
             type: Array,

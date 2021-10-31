@@ -1,8 +1,8 @@
 <template>
     <b-container>
-		<h1>Covid cases</h1>
-        <search-autocomplete :items="getCountries" v-model="search"/>
-		<sidebar-chart :showSidebar="showSidebarCont" :countryData="countryDataSet" @hideSidebar="showSidebarCont = false"/>
+		<h1 class="mt-5">Covid cases by country</h1>
+        <search-autocomplete :items="getCountries" v-model="search" @selected-item="fetchTableData"/>
+		<sidebar-chart :showSidebar="showSidebarContent" :countryData="countryDataSet" @hideSidebar="showSidebarContent = false"/>
 
         <b-table
 			striped
@@ -13,16 +13,15 @@
 			:per-page="perPage"
 			:current-page="currentPage"
 			@row-clicked="getRowData"
-			v-model="visibleRows"
+			v-model="rowData"
 		>
 			<template slot="bottom-row">
 				<td></td>
 				<td></td>
 				<td></td>
-				<td>TOTALS: {{ totalExpenses }}</td>
+				<td class="text-right"><strong>TOTAL:</strong> {{ totalExpenses }}</td>
 			</template>
 		</b-table>
-        <b-pagination v-model="currentPage" :total-rows="getTableItems.length" :per-page="perPage"></b-pagination>
     </b-container>
 </template>
 
@@ -32,6 +31,7 @@ import SearchAutocomplete from '@/components/SearchAutocomplete.vue';
 import SidebarChart from './SidebarChart.vue';
 
 export default {
+	name: 'covid-table',
     components: {
         SearchAutocomplete,
 		SidebarChart
@@ -41,20 +41,23 @@ export default {
             search: null,
             currentPage: 1,
             perPage: 10,
-			visibleRows: [],
-			showSidebarCont: false,
+			rowData: [],
+			showSidebarContent: false,
 			countryDataSet: {},
-            fields: ['Country', 'TotalConfirmed', 'TotalDeaths', 'TotalRecovered']
+            fields: ['Country', 'Active', 'Deaths', 'Recovered']
         };
     },
 	methods: {
+		fetchTableData(value) {
+			this.$store.dispatch('tableItemsGet', value);
+		},
 		getRowData(v) {
-			this.showSidebarCont = true;
+			this.showSidebarContent = !this.showSidebarContent;
 
 			let chartDataSet = {
-				'Total Confirmed': v.TotalConfirmed,
-				'Total Deaths': v.TotalDeaths,
-				'Total Recovered': v.TotalRecovered
+				'Active': v.Active,
+				'Deaths': v.Deaths,
+				'Recovered': v.Recovered
 			}
 			this.countryDataSet = chartDataSet;
 		}
@@ -67,13 +70,17 @@ export default {
 			return this.search ? this.$store.state.selectedItem.Slug : null;
 		},
 		totalExpenses() {
-			return this.visibleRows.reduce((acc, item) => {
-				return acc + item.TotalConfirmed;
-			}, 0.00)
+			return this.rowData.reduce((sum, item) => {
+				Object.keys(item).forEach(key => {
+					if (typeof item[key] === 'number' && key !== 'Confirmed') {
+						sum = sum + item[key];
+					}
+				});
+				return sum;
+			}, 0.00);
 		}
     },
     created() {
-		this.$store.dispatch('tableItemsGet');
         this.$store.dispatch('countriesGet');
     }
 };
